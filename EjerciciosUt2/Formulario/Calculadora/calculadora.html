@@ -1,1 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario - calculadora</title>
+</head>
+<body>
+    <h1>CALCULADORA</h1>
+    <form name='calculadora' action='calculadora.php' method='POST'>
+        <label>Operando 1:</label>
+        <input type="number" name="num1" step="any"><br><br>
 
+        <label>Operando 2:</label>
+        <input type="number" name="num2" step="any"><br><br>
+
+        <label>Selecciona operación:</label><br>
+        <input type="radio" name="operacion" value="sumar" required> Suma<br>
+        <input type="radio" name="operacion" value="restar"> Resta<br>
+        <input type="radio" name="operacion" value="multiplicar"> Producto<br>
+        <input type="radio" name="operacion" value="dividir"> Dividisión<br><br>
+
+        <input type="submit" value="Enviar">
+        <input type="reset" value="Borrar">
+    </form>
+</body>
+</html>
