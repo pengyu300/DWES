@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apuesta = limpiar_campo($_POST["apuesta"]);
 
     // Guardar los nombres introducidos en un array
-    $nombres = [$nombre1, $nombre2, $nombre3, $nombre4];
+    $nombres = array($nombre1, $nombre2, $nombre3, $nombre4);
 
     // Repartir
     $jugadores = repartirJugadores($nombres, $numcartas);
