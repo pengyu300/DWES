@@ -34,12 +34,14 @@ function repartir ($cartas, $numcartas){
 }
 
 
-// Repartir las cartas a cada jugador
+// Repartir un número de cartas ($numcartas) a cada jugador del array $nombres, usando la baraja mezclada que devuelve la función cartas().
+usando la baraja mezclada que devuelve la función cartas().
 function repartirJugadores ($nombres, $numcartas){
     $baraja = cartas(); // genera la baraja mezclada
     $jugadores = [];
 
-    // Devulve las cartas que se le dan al jugador actual, y la baraja actualizada sin cartas usadas
+    // Recorre la lista de jugadores que el usuario introdujo en el formulario.
+    // $mano = $cartas_repartidas; $baraja = $baraja_restante;
     foreach ($nombres as $nombre){
         list($mano, $baraja) = repartir($baraja, $numcartas);
         $jugadores [$nombre] = $mano;
