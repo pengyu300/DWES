@@ -8,7 +8,7 @@
 
     <label>Categoría:</label>
     <select name="id_categoria" required>
-        <option value="">-- Selecciona una categoría --</option>
+        <option value=""> Selecciona una categoría </option>
         <?php
         foreach ($categorias as $cat) {
             echo '<option value="'. $cat['id_categoria'] .'">'. htmlspecialchars($cat['nombre']) .'</option>';
