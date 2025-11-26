@@ -16,17 +16,41 @@ function limpiar_campos($data) {
   return $data;
 }
 
+// Función para obtener departamentos
+function obtenerDepartamentos($conn) {
+    $stmt = $conn->prepare(
+        "SELECT cod_dpto, nombre_dpto 
+         FROM departamento
+         ORDER BY cod_dpto"
+    );
+    $stmt->execute();
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    return $stmt->fetchAll();
+}
+
+// Función para insertar nuevo empleado
+function insertarEmpleado($conn, $dni, $nombre, $apellidos, $fecha_nac, $salario, $cod_dpto) {
+    $stmt = $conn->prepare(
+        "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario, cod_dpto)
+         VALUES (:dni, :nombre, :apellidos, :fecha_nac, :salario, :cod_dpto)"
+    );
+    $stmt->bindParam(':dni', $dni);
+    $stmt->bindParam(':nombre', $nombre);
+    $stmt->bindParam(':apellidos', $apellidos);
+    $stmt->bindParam(':fecha_nac', $fecha_nac);
+    $stmt->bindParam(':salario', $salario);
+    $stmt->bindParam(':cod_dpto', $cod_dpto);
+    $stmt->execute();
+}
+
+
 try {
     // Conexión
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Obtener departamentos
-    $stmt = $conn->prepare(
-        "select cod_dpto, nombre_dpto from departamento
-         order by cod_dpto");
-    $stmt->execute();
-    $departamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $departamentos = obtenerDepartamentos($conn);
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -40,20 +64,8 @@ try {
         // Iniciar transacción
         $conn->beginTransaction();
 
-        $stmt = $conn->prepare(
-            "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario, cod_dpto)
-             VALUES (:dni, :nombre, :apellidos, :fecha_nac, :salario, :cod_dpto)"
-        );
-
-
-        $stmt->bindParam(':dni', $dni);
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':apellidos', $apellidos);
-        $stmt->bindParam(':fecha_nac', $fecha_nac);
-        $stmt->bindParam(':salario', $salario);
-        $stmt->bindParam(':cod_dpto', $cod_dpto);
-
-        $stmt->execute();
+        // Insertar
+        insertarEmpleado($conn, $dni, $nombre, $apellidos, $fecha_nac, $salario, $cod_dpto);
 
         // Confirmar transacción
         $conn->commit();
@@ -62,10 +74,9 @@ try {
     }
 
 }catch (PDOException $e) {
-    if ($conn && $conn->inTransaction()) {
-        $conn->rollBack();
-    }
+    
     echo "Error: " . $e->getMessage();
+    echo "Código de error: " . $e->getCode() . "<br>";
 }
 
 $conn = null;
