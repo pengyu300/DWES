@@ -1,3 +1,6 @@
+<!--Realizar un programa en php empcambiodpto.php que permita seleccionar el DNI de un empleado de una lista desplegable y 
+permita asignarlo a un nuevo departamento. Este nuevo departamento se obtendrá también de un desplegable.-->
+
 <?php
 $servername = "localhost";
 $username = "root";
@@ -11,28 +14,51 @@ function limpiar_campos($data) {
   return $data;
 }
 
+// Función para obtener todos los empleados (dni, nombre, apellidos)
+function obtenerEmpleados($conn) {
+    $stmt = $conn->prepare(
+        "SELECT dni, nombre, apellidos 
+         FROM empleado 
+         ORDER BY nombre"
+    );
+    $stmt->execute();
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    return $stmt->fetchAll();
+}
+
+
+// Función para obtener departamentos
+function obtenerDepartamentos($conn) {
+    $stmt = $conn->prepare(
+        "SELECT cod_dpto, nombre_dpto 
+         FROM departamento 
+         ORDER BY cod_dpto"
+    );
+    $stmt->execute();
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    return $stmt->fetchAll();
+}
+
+
+// Función para actualizar departamento de un empleado
+function actualizarDepartamentoEmpleado($conn, $dni, $nuevo_dpto) {
+    $stmt = $conn->prepare("UPDATE empleado SET cod_dpto = :cod_dpto WHERE dni = :dni");
+    $stmt->bindParam(':cod_dpto', $nuevo_dpto);
+    $stmt->bindParam(':dni', $dni);
+    $stmt->execute();
+}
+
 try{
     // Conexión
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Obtener lista de empleados para el select (dni y nombre)
-    $stmt = $conn->prepare(
-        "select dni, nombre, apellidos from empleado 
-         order by nombre"
-    );
-    $stmt->execute();
-    $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    $empleados = $stmt->fetchAll();
+    // Obtener lista de empleados
+    $empleados = obtenerEmpleados($conn);
 
     // Departamentos
-    $stmt = $conn->prepare(
-        "select cod_dpto, nombre_dpto from departamento 
-         order by cod_dpto"
-    );
-    $stmt->execute();
-    $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    $dptos = $stmt->fetchAll();
+    $dptos = obtenerDepartamentos($conn);
+    
 
     // Procesar formulario
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -44,11 +70,7 @@ try{
         $conn->beginTransaction();
 
         // Actualizar departamento del empleado
-        $stmt = $conn->prepare("UPDATE empleado SET cod_dpto = :cod_dpto WHERE dni = :dni");
-        $stmt->bindParam(':cod_dpto', $nuevo_dpto);
-        $stmt->bindParam(':dni', $dni);
-
-        $stmt->execute();
+        actualizarDepartamentoEmpleado($conn, $dni, $nuevo_dpto);
 
         // Confirmar
         $conn->commit();
@@ -61,6 +83,7 @@ try{
         $conn->rollBack();
     }
     echo "Error: " . $e->getMessage();
+    echo "<br>Código de error: " . $e->getCode();
 }
 
 $conn = null;
