@@ -15,10 +15,36 @@ function limpiar_campos($data) {
     return $data;
 }
 
+// Crear conexión
+function conectarBD($servername, $username, $password, $dbname){
+    try {
+        // La sentencia de conexión
+        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        // Configurar atributos de PDO para manejar errores
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        return $conn;
+        
+    } catch (PDOException $e) {
+
+        echo "Error: " . $e->getMessage();
+        // Terminar la ejecución del script si la conexión falla
+        exit(); 
+    }
+}
+
+function insertar_almacen($conn, $localidad){
+    $stmt = $conn->prepare(
+            "INSERT INTO almacen (localidad) VALUES (:localidad)"
+        );
+
+    $stmt->bindParam(':localidad', $localidad);
+    $stmt->execute();
+}
+
 try {
-    // Crear conexión
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Crear conexion
+    $conn = conectarBD($servername, $username, $password, $dbname);
 
     // 1. Procesar el formulario
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -26,11 +52,7 @@ try {
         $localidad = limpiar_campos($_POST['localidad']);
 
         // Insertar el nuevo almacén
-        $stmt = $conn->prepare(
-            "INSERT INTO almacen (localidad) VALUES (:localidad)"
-        );
-        $stmt->bindParam(':localidad', $localidad);
-        $stmt->execute();
+        insertar_almacen($conn, $localidad);
 
         // Obtener numero id autogenerado
         $nuevo_id = $conn->lastInsertId();
